@@ -338,11 +338,13 @@ DataStatus EncodeValveParam(IPluginContext *pContext,
 				return Data_Okay;
 			}
 
+			ForeignMemoryPointer *obj = new ForeignMemoryPointer(ptr);
 			HandleError err = HandleError_None;
-			Handle_t hndl = handlesys->CreateHandle(g_MemPtrHandle, new ForeignMemoryPointer(ptr), pContext->GetIdentity(), myself->GetIdentity(), &err);
+			Handle_t hndl = handlesys->CreateHandle(g_MemPtrHandle, obj, pContext->GetIdentity(), myself->GetIdentity(), &err);
 
 			if (err != HandleError_None)
 			{
+				delete obj;
 				pContext->ThrowNativeError("Failed to create MemoryPointer while decoding (error: %d)", err);
 				return Data_Fail;
 			}
@@ -663,17 +665,6 @@ DataStatus DecodeValveParam(IPluginContext *pContext,
 			cell_t* addr;
 			pContext->LocalToPhysAddr(param, &addr);
 			Handle_t hndl = (Handle_t)*addr;
-
-			if (hndl == 0)
-			{
-				if (data->decflags & VDECODE_FLAG_ALLOWNULL)
-				{
-					*(void **)buffer = nullptr;
-					return Data_Okay;
-				}
-				pContext->ThrowNativeError("Null/Invalid Handle MemoryPointer isn't allowed");
-				return Data_Fail;
-			}
 
 			HandleError err = HandleError_None;
 			if ((err = handlesys->ReadHandle(hndl, g_MemPtrHandle, &security, (void **)&ptr)) != HandleError_None)

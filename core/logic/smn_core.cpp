@@ -1149,6 +1149,28 @@ static cell_t MemoryPointer_Offset(IPluginContext *pContext, const cell_t *param
 	return newHandle;
 }
 
+static cell_t MemoryPointer_Equals(IPluginContext *pContext, const cell_t *params)
+{
+	Handle_t hndl_left = (Handle_t)params[1], hndl_right = (Handle_t)params[2];
+	HandleError err;
+	IMemoryPointer *ptr_left, *ptr_right;
+
+	HandleSecurity sec;
+	sec.pIdentity = g_pCoreIdent;
+	sec.pOwner = pContext->GetIdentity();
+
+	if ((err=handlesys->ReadHandle(hndl, g_MemoryPtr, &sec, (void **)&ptr_left)) != HandleError_None)
+	{
+		return pContext->ThrowNativeError("Could not read Handle %x (error %d)", hndl_Left, err);
+	}
+	if ((err=handlesys->ReadHandle(hndl, g_MemoryPtr, &sec, (void **)&ptr_right)) != HandleError_None)
+	{
+		return pContext->ThrowNativeError("Could not read Handle %x (error %d)", hndl_right, err);
+	}
+
+	return ptr_left->Get() == ptr_right.Get();
+}
+
 static cell_t FrameIterator_Create(IPluginContext *pContext, const cell_t *params)
 {
 	IFrameIterator *it = pContext->CreateFrameIterator();
@@ -1345,6 +1367,7 @@ REGISTER_NATIVES(coreNatives)
 	{"MemoryPointer.StoreMemoryPointer",		MemoryPointer_StoreMemoryPointer},
 	{"MemoryPointer.LoadMemoryPointer",			MemoryPointer_LoadMemoryPointer},
 	{"MemoryPointer.Offset",					MemoryPointer_Offset},
+	{"MemoryPointer.Equals",					MemoryPointer_Equals},
 	
 	{"FrameIterator.FrameIterator",				FrameIterator_Create},
 	{"FrameIterator.Next",						FrameIterator_Next},

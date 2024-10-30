@@ -818,7 +818,15 @@ methodmap MemoryPointer < Handle {
 	// @param size          Offset from base pointer in bytes.
 	// @return              New Handle to a memory pointer.
 	public native MemoryPointer Offset(int offset);
+
+	// Compares whether the two MemoryPointer handles contain the same pointer value.
+	// @param other			MemoryPointer handle to compare with.
+	// @return				True if both handles contain the same pointer value.
+	public native bool Equals(MemoryPointer other);
 };
+
+stock bool operator==(MemoryPointer lhs, MemoryPointer rhs) { return lhs.Equals(rhs); }
+stock bool operator!=(MemoryPointer lhs, MemoryPointer rhs) { return !lhs.Equals(rhs); }
 
 methodmap FrameIterator < Handle {
 	// Creates a stack frame iterator to build your own stack traces.
